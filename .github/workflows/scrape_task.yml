@@ -45,7 +45,7 @@ jobs:
 
       # 步驟 6：執行主腳本
       - name: Run scraper (and state comparison)
-        run: python error.py
+        run: python scraper.py
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
