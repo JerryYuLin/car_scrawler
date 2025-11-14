@@ -216,7 +216,7 @@ def send_to_discord(cars_to_notify_list, is_mandatory_notify, timestamp_utc):
                 "timestamp": iso_timestamp
             })
     else:
-        content_message = f"KIA Sportage 新車上架！ (共 {total_cars} 台新車)：\n"
+        content_message = f"KIA Sportage 可購買共 {total_cars} 台：\n"
     
     embed_chunks = [embeds[i:i + 10] for i in range(0, len(embeds), 10)]
     
