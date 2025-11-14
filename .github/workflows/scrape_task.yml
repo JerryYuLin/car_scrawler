@@ -7,7 +7,7 @@ on:
   
   schedule:
     # 每個整點的 0 分執行 (UTC 時間)
-    - cron: '0 * * * *'
+    - cron: '*/30 * * * *'
 
 jobs:
   scrape:

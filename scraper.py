@@ -235,7 +235,6 @@ def send_to_discord(cars_to_notify_list, is_mandatory_notify, timestamp_utc):
         except requests.RequestException as e:
             print(f"       發送 Discord 失敗：{e}")
 
-# --- (V18) 程式主執行區塊 (修改) ---
 if __name__ == "__main__":
     
     print("--- 啟動 V18 (增加時間戳記) 爬蟲腳本 ---")
@@ -255,13 +254,25 @@ if __name__ == "__main__":
     # 4. (V18 修改) 取得「一次」UTC 時間，供後續所有函式使用
     now_utc = datetime.datetime.utcnow()
     current_hour_utc = now_utc.hour # 只取小時
-    print(f"目前 UTC 時間: {now_utc.isoformat()} (小時: {current_hour_utc})")
     
-    is_mandatory_notify_time = (current_hour_utc == 4 or current_hour_utc == 10)
+    # --- (V19 修改) 增加「分鐘」檢查 ---
+    current_minute_utc = now_utc.minute # 取得分鐘
+    print(f"目前 UTC 時間: {now_utc.isoformat()} (小時: {current_hour_utc}, 分鐘: {current_minute_utc})")
+    
+    # 檢查是否為 UTC 4:xx 或 10:xx
+    is_correct_hour = (current_hour_utc == 4 or current_hour_utc == 10)
+    
+    # 檢查是否為 00 分鐘的執行（允許 30 分鐘內的延遲，避免 30 分的執行）
+    is_on_the_hour_run = (current_minute_utc < 30) 
+    
+    # 必須同時滿足「小時正確」和「是 00 分的執行」
+    is_mandatory_notify_time = is_correct_hour and is_on_the_hour_run
+    # --- (V19 修改結束) ---
+    
     
     # 5. 決定是否發送通知
     if is_mandatory_notify_time:
-        print("觸發「強制通知時間」(CST 12:00 / 18:00)。")
+        print(f"觸發「強制通知時間」(CST 12:00 / 18:00)。(UTC {current_hour_utc}:{current_minute_utc})")
         # (V18 修改) 傳入 now_utc
         send_to_discord(list(current_cars_dict.values()), is_mandatory_notify=True, timestamp_utc=now_utc)
         
