@@ -52,6 +52,8 @@ jobs:
 
       # 步驟 7：儲存本次執行結果，供下次使用
       - name: Save current car list cache
+        # (重點修正) 只有在前面步驟都成功時才儲存
+        if: success()
         uses: actions/cache/save@v4
         with:
           # 腳本執行完後，會產生一個新的 previous_cars.json
@@ -64,4 +66,6 @@ jobs:
         # 這是 GitHub Actions 的特殊條件：
         # 只有在 'steps' 中有任何一個步驟失敗時，才執行此
         if: failure()
-        run: curl -H "Content-Type: application/json" -d '{"content":" **爬蟲執行失敗！** \n請立即到 GitHub Actions 檢查 Log：\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' ${{ secrets.DISCORD_WEBHOOK_URL }}
+        # (重點修正) 使用 | 來處理複雜的字串，避免語法錯誤
+        run: |
+          curl -H "Content-Type: application/json" -d '{"content":" **爬蟲執行失敗！** \n請立即到 GitHub Actions 檢查 Log：\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' ${{ secrets.DISCORD_WEBHOOK_URL }}
