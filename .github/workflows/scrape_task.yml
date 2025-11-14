@@ -43,13 +43,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 步驟 6：執行主腳本 (V17 智能版)
+      # 步驟 6：執行主腳本
       - name: Run scraper (and state comparison)
-        run: python scraper.py
+        run: python error.py
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-      # --- (V17 新增步驟) ---
+
       # 步驟 7：儲存本次執行結果，供下次使用
       - name: Save current car list cache
         uses: actions/cache/save@v4
@@ -58,3 +58,11 @@ jobs:
           # 我們把它上傳，覆蓋掉舊的快取
           path: previous_cars.json
           key: kia-car-list-cache
+
+      # 步驟 8： 如果前面任何一步失敗，就執行這個
+      - name: Notify on failure
+        # 這是 GitHub Actions 的特殊條件：
+        # 只有在 'steps' 中有任何一個步驟失敗時，才執行此
+        if: failure()
+        run: 
+          curl -H "Content-Type: application/json" -d '{"content":" **爬蟲執行失敗！** \n請立即到 GitHub Actions 檢查 Log：\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' ${{ secrets.DISCORD_WEBHOOK_URL }}
