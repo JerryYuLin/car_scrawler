@@ -64,5 +64,4 @@ jobs:
         # 這是 GitHub Actions 的特殊條件：
         # 只有在 'steps' 中有任何一個步驟失敗時，才執行此
         if: failure()
-        run: 
-          curl -H "Content-Type: application/json" -d '{"content":" **爬蟲執行失敗！** \n請立即到 GitHub Actions 檢查 Log：\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: curl -H "Content-Type: application/json" -d '{"content":" **爬蟲執行失敗！** \n請立即到 GitHub Actions 檢查 Log：\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' ${{ secrets.DISCORD_WEBHOOK_URL }}
