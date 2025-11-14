@@ -1,0 +1,60 @@
+# 檔案名稱：.github/workflows/scrape_task.yml
+
+name: Run KIA Scraper
+
+on:
+  workflow_dispatch:
+  
+  schedule:
+    # 每個整點的 0 分執行 (UTC 時間)
+    - cron: '0 * * * *'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      # 步驟 1：取得程式碼
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # 步驟 2：設定 Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 步驟 3：安裝 Chrome
+      - name: Set up Chrome browser
+        uses: browser-actions/setup-chrome@v1
+
+      # --- (V17 新增步驟) ---
+      - name: Restore previous car list cache
+        uses: actions/cache/restore@v4
+        id: cache-restore
+        with:
+          # 這個檔案會被下載到我們的虛擬機中
+          path: previous_cars.json
+          # 我們使用一個固定的 key 來不斷讀取/覆蓋
+          key: kia-car-list-cache
+
+      # 步驟 5：安裝套件
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 步驟 6：執行主腳本 (V17 智能版)
+      - name: Run scraper (and state comparison)
+        run: python scraper.py
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      # --- (V17 新增步驟) ---
+      # 步驟 7：儲存本次執行結果，供下次使用
+      - name: Save current car list cache
+        uses: actions/cache/save@v4
+        with:
+          # 腳本執行完後，會產生一個新的 previous_cars.json
+          # 我們把它上傳，覆蓋掉舊的快取
+          path: previous_cars.json
+          key: kia-car-list-cache
